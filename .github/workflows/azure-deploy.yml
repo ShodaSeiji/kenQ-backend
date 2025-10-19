@@ -26,5 +26,5 @@ jobs:
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'kenq-backend-app-2025'
+        app-name: 'app-kenq-freepoc-3'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
