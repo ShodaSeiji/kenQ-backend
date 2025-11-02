@@ -16,8 +16,8 @@ ALLOWED_ORIGINS=os.getenv("ALLOWED_ORIGINS")
 
 # インスタンス化
 app = FastAPI(
-    title="研Q a-co_poc",
-    description="a-co_pocのAPI",
+    title="研Q MVP",
+    description="研Q MVPのAPI",
     version="0.0.0"
 )
 
