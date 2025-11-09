@@ -111,5 +111,7 @@ def add_project(
 
     except Exception as e:
         db.rollback()
-        # print("例外発生！:", e)
+        print("例外発生！:", e)
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"サーバー内部エラー: {e}")

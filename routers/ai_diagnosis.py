@@ -23,7 +23,8 @@ def ai_diagnosis(
     description = project_info.project_content
     industry = project_info.industry_category #業種情報
     business_description = project_info.business_description #事業内容
+    language = project_info.language #言語設定
 
-    response = digging_issue(industry=industry, business=business_description, challenge=description)
+    response = digging_issue(industry=industry, business=business_description, challenge=description, language=language)
 
     return response

@@ -2,19 +2,36 @@
 project_idからマッチングされた全ての研究者情報を取得するエンドポイント
 '''
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from typing import List
+from typing import List, Optional
+from deep_translator import GoogleTranslator
 
 from database.connection import get_db
 from database.mymodels import MatchingInformation, ResearcherInformation, ProjectInformation
 
 router = APIRouter(prefix="/matching-result", tags=["マッチング結果取得"])
 
+def translate_to_english(text: str) -> str:
+    """日本語のテキストを英語に翻訳"""
+    try:
+        if not text or len(text.strip()) == 0:
+            return text
+        # GoogleTranslatorを使用して翻訳（無料）
+        translator = GoogleTranslator(source='ja', target='en')
+        # 長いテキストは分割して翻訳
+        if len(text) > 5000:
+            return translator.translate(text[:5000])
+        return translator.translate(text)
+    except Exception as e:
+        print(f"Translation error: {e}")
+        return text  # エラーの場合は元のテキストを返す
+
 @router.get("/{project_id}")
 def get_matching_researchers(
     project_id: int,
+    locale: Optional[str] = Query(default="ja", description="Language locale (ja or en)"),
     db: Session = Depends(get_db)
 ):
     try:
@@ -43,9 +60,14 @@ def get_matching_researchers(
         # 結果を整形
         matching_results = []
         for row in results:
+            # ロケールが'en'の場合、matching_reasonを翻訳
+            matching_reason = row.matching_reason
+            if locale == 'en':
+                matching_reason = translate_to_english(row.matching_reason)
+
             researcher_data = {
                 "matching_id": row.matching_id,
-                "matching_reason": row.matching_reason,
+                "matching_reason": matching_reason,
                 "favorite_status": row.favorite_status,
                 "researcher_info": {
                     "researcher_id": row.ResearcherInformation.researcher_id,

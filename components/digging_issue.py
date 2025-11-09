@@ -53,42 +53,81 @@ def get_openai_response(messages):
 
 
 # LLMを用いて課題の深堀
-def digging_issue(industry: str, business: str, challenge: str) -> str:
-   prompt = f"""
-   以下の3つの変数がユーザーから入力されます：
+def digging_issue(industry: str, business: str, challenge: str, language: str = "ja") -> str:
+   # 言語に応じたプロンプトの選択
+   if language == "en":
+      prompt = f"""
+      The following three variables are input from the user:
 
-   - 産業分類（industry）：{industry}
-   - 事業内容（business）：{business}
-   - 事業の課題（challenge）：{challenge}
+      - Industry classification (industry): {industry}
+      - Business description (business): {business}
+      - Business challenge (challenge): {challenge}
 
-   上記の入力情報を基に、後続のベクトルサーチで高い類似度が得られるよう、以下の4つの要素を含む濃縮された情報文章を出力してください。
+      Based on the above input information, please output a condensed information text containing the following four elements to achieve high similarity in subsequent vector searches.
 
-   【出力すべき要素】
-   1. 課題概要
-   {challenge} の内容を中心に、背景、目的、業界特有の課題、{business} に関連する具体的なニーズ、解決すべき問題点や期待される成果を簡潔に記述してください。
+      [Elements to Output]
+      1. Challenge Overview
+      Focusing on the content of {challenge}, briefly describe the background, objectives, industry-specific challenges, specific needs related to {business}, problems to be solved, and expected outcomes.
 
-   2. 抽出したキーワード・コンセプト
-   {industry} や {business} に関する代表的な技術用語、ビジネス用語、関連概念、具体的なアプローチ（例：AI、IoT、データ解析、サステナビリティ、最適化、シミュレーションなど）を列挙してください。
+      2. Extracted Keywords and Concepts
+      List representative technical terms, business terms, related concepts, and specific approaches (e.g., AI, IoT, data analysis, sustainability, optimization, simulation, etc.) related to {industry} and {business}.
 
-   3. 対応可能な研究分野や技術アプローチ
-   {challenge} に対して、どのような学術分野・研究手法・技術的アプローチが貢献可能かを記述してください。過去の事例や応用可能な研究領域も含めてください。
+      3. Applicable Research Fields and Technical Approaches
+      Describe what academic fields, research methods, and technical approaches can contribute to {challenge}. Include past case studies and applicable research areas.
 
-   4. 連携の可能性とシナジー
-   研究者との連携によって得られる相乗効果、実現可能な応用シナリオ、事前に考慮すべき制約条件や前提条件を含めて記述してください。
+      4. Collaboration Possibilities and Synergies
+      Describe the synergistic effects obtained through collaboration with researchers, feasible application scenarios, and constraints or prerequisites to be considered in advance.
 
-   【文章作成の注意点】
+      [Writing Notes]
 
-   - 各要素はベクトル化に有効なキーワードや概念として明確に書き出してください。
-   - {challenge} の抽象性を補完するために、関連する仮説や他分野との関連付けを適宜加えてください。
-   - ビジネス視点と研究視点の両方からの情報をバランスよく含め、一貫性ある構成にしてください。
+      - Clearly write out each element as keywords or concepts that are effective for vectorization.
+      - To supplement the abstractness of {challenge}, appropriately add related hypotheses or associations with other fields.
+      - Include information from both business and research perspectives in a balanced manner and create a consistent structure.
 
-   【出力フォーマット例】
-   「【課題概要】... 【キーワード】... 【研究分野・技術アプローチ】... 【連携・シナジー】...」
+      [Output Format Example]
+      "[Challenge Overview]... [Keywords]... [Research Fields/Technical Approaches]... [Collaboration/Synergy]..."
 
-   このテンプレートに従い、{industry}、{business}、{challenge} を入力変数としてベクトル化に適した文章を生成してください。
-   """
+      Following this template, generate a sentence suitable for vectorization using {industry}, {business}, and {challenge} as input variables.
+      """
+      system_message = "You are an assistant that creates information texts for a system that matches business challenges with researchers' research content."
+   else:
+      prompt = f"""
+      以下の3つの変数がユーザーから入力されます：
+
+      - 産業分類（industry）：{industry}
+      - 事業内容（business）：{business}
+      - 事業の課題（challenge）：{challenge}
+
+      上記の入力情報を基に、後続のベクトルサーチで高い類似度が得られるよう、以下の4つの要素を含む濃縮された情報文章を出力してください。
+
+      【出力すべき要素】
+      1. 課題概要
+      {challenge} の内容を中心に、背景、目的、業界特有の課題、{business} に関連する具体的なニーズ、解決すべき問題点や期待される成果を簡潔に記述してください。
+
+      2. 抽出したキーワード・コンセプト
+      {industry} や {business} に関する代表的な技術用語、ビジネス用語、関連概念、具体的なアプローチ（例：AI、IoT、データ解析、サステナビリティ、最適化、シミュレーションなど）を列挙してください。
+
+      3. 対応可能な研究分野や技術アプローチ
+      {challenge} に対して、どのような学術分野・研究手法・技術的アプローチが貢献可能かを記述してください。過去の事例や応用可能な研究領域も含めてください。
+
+      4. 連携の可能性とシナジー
+      研究者との連携によって得られる相乗効果、実現可能な応用シナリオ、事前に考慮すべき制約条件や前提条件を含めて記述してください。
+
+      【文章作成の注意点】
+
+      - 各要素はベクトル化に有効なキーワードや概念として明確に書き出してください。
+      - {challenge} の抽象性を補完するために、関連する仮説や他分野との関連付けを適宜加えてください。
+      - ビジネス視点と研究視点の両方からの情報をバランスよく含め、一貫性ある構成にしてください。
+
+      【出力フォーマット例】
+      「【課題概要】... 【キーワード】... 【研究分野・技術アプローチ】... 【連携・シナジー】...」
+
+      このテンプレートに従い、{industry}、{business}、{challenge} を入力変数としてベクトル化に適した文章を生成してください。
+      """
+      system_message = "あなたは、事業会社の課題と研究者の研究内容をマッチングするシステムのための情報文章を作成するアシスタントです。"
+
    messages=[
-      {"role": "system", "content": "あなたは、事業会社の課題と研究者の研究内容をマッチングするシステムのための情報文章を作成するアシスタントです。"},
+      {"role": "system", "content": system_message},
       {"role": "user", "content": prompt}
    ]
    return get_openai_response(messages)
