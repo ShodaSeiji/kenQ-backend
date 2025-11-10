@@ -20,51 +20,52 @@ try:
         company_id = existing_company.company_id
         print(f"✅ 既存の企業を使用します: {existing_company.company_name}")
 
-    # ユーザー1を作成
-    password1 = "testaco"
-    hashed1 = bcrypt.hashpw(password1.encode('utf-8'), bcrypt.gensalt())
+    # 既存のテストユーザーを削除
+    existing_users = db.query(CompanyUser).filter(
+        CompanyUser.company_user_name.in_(["test", "test2"])
+    ).all()
 
-    # 既存のユーザーをチェック
-    existing_user1 = db.query(CompanyUser).filter(CompanyUser.company_user_name == "test").first()
-    if existing_user1:
-        print(f"⚠️ ユーザー 'test' は既に存在します。スキップします。")
-    else:
-        test_user1 = CompanyUser(
-            company_id=company_id,
-            company_user_name="test",
-            password=hashed1.decode('utf-8')
-        )
-        db.add(test_user1)
-        print(f"✅ ユーザー 'test' を作成しました")
-
-    # ユーザー2を作成
-    password2 = "testaco2"
-    hashed2 = bcrypt.hashpw(password2.encode('utf-8'), bcrypt.gensalt())
-
-    existing_user2 = db.query(CompanyUser).filter(CompanyUser.company_user_name == "test2").first()
-    if existing_user2:
-        print(f"⚠️ ユーザー 'test2' は既に存在します。スキップします。")
-    else:
-        test_user2 = CompanyUser(
-            company_id=company_id,
-            company_user_name="test2",
-            password=hashed2.decode('utf-8')
-        )
-        db.add(test_user2)
-        print(f"✅ ユーザー 'test2' を作成しました")
+    for user in existing_users:
+        db.delete(user)
+        print(f"🗑️ 既存ユーザー '{user.company_user_name}' を削除しました")
 
     db.commit()
 
-    print(f"\n✅ テストユーザーを作成しました")
-    print(f"\nユーザー1:")
-    print(f"  company_user_id: 1")
-    print(f"  company_user_name: test")
-    print(f"  password: testaco")
+    # 新しいユーザーを作成
+    users_to_create = [
+        {"company_user_name": "test", "password": "testaco"},
+        {"company_user_name": "test2", "password": "testaco2"}
+    ]
+
+    for user_data in users_to_create:
+        # パスワードをハッシュ化
+        hashed = bcrypt.hashpw(user_data["password"].encode('utf-8'), bcrypt.gensalt())
+
+        # ユーザーを作成
+        new_user = CompanyUser(
+            company_id=company_id,
+            company_user_name=user_data["company_user_name"],
+            password=hashed.decode('utf-8')
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        print(f"\n✅ ユーザーを作成しました")
+        print(f"   ID: {new_user.company_user_id}")
+        print(f"   ユーザー名: {user_data['company_user_name']}")
+        print(f"   パスワード: {user_data['password']}")
+
+    print(f"\n✅ すべてのテストユーザーを作成しました")
+    print(f"\n以下の情報でログインしてください:")
+    print(f"━━━━━━━━━━━━━━━━━━━━")
+    print(f"ユーザー1:")
+    print(f"  ユーザー名: test")
+    print(f"  パスワード: testaco")
     print(f"\nユーザー2:")
-    print(f"  company_user_id: 2")
-    print(f"  company_user_name: test2")
-    print(f"  password: testaco2")
-    print(f"\nこの情報でログインしてください")
+    print(f"  ユーザー名: test2")
+    print(f"  パスワード: testaco2")
+    print(f"━━━━━━━━━━━━━━━━━━━━")
 
 except Exception as e:
     print(f"❌ エラー: {e}")
