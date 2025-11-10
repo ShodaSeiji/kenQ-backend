@@ -25,3 +25,4 @@ mysql-connector-python==9.1.0
 uvicorn==0.32.0
 gunicorn[uvicorn]
 bcrypt==4.3.0
+setuptools>=65.0.0
