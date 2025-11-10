@@ -39,3 +39,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# ヘルスチェック用エンドポイント
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "kenQ Backend API is running"}
