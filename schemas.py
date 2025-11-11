@@ -32,4 +32,3 @@ class AIDiagnosisRequest(BaseModel):
     industry_category: str
     business_description: str
     project_content: str
-    language: Optional[str] = "ja"  # デフォルトは日本語
