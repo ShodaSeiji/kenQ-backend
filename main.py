@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database.connection import get_db
 
 # ルータのインポート
-from routers import add_to_favorites, project_registration, ai_diagnosis, auth, researcher_info, matching_result, project_info
+from routers import add_to_favorites, project_registration, ai_diagnosis, auth, researcher_info, matching_result, project_info, researchers_en
 
 import os
 from dotenv import load_dotenv
@@ -29,6 +29,7 @@ app.include_router(auth.router) # 認証用
 app.include_router(researcher_info.router) # 研究者情報取得用（※不要かも）
 app.include_router(matching_result.router) # マッチング結果取得用
 app.include_router(project_info.router) # マイページ案件一覧取得用
+app.include_router(researchers_en.router) # 英語研究者情報取得用
 
 # CORS設定.開発中はとりあえず全てのメソッド、ヘッダーを許可.オリジンはローカル/本番を併記
 app.add_middleware(
@@ -38,3 +39,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# ヘルスチェック用エンドポイント
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "kenQ Backend API is running"}
